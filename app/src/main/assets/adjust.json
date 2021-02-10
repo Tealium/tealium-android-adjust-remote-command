@@ -1,0 +1,37 @@
+{
+  "config": {
+    "api_token": "wv6wqpoxsqv4",
+    "sandbox": true,
+    "settings": {
+      "log_level": "debug",
+      "app_secret" : "",
+      "app_secret_info_1" : "",
+      "app_secret_info_2" : "",
+      "app_secret_info_3" : "",
+      "app_secret_info_4" : ""
+    }
+  },
+  "mappings": {
+    "event_token": "event_token",
+    "push_token": "push_token",
+    "order_total": "revenue",
+    "order_currency": "currency",
+    "order_id": "order_id",
+    "callback_id": "callback_id",
+    "event_param_1": "callback.param1",
+    "event_param_2": "callback.param2",
+    "partner_param_1": "partner.param1",
+    "partner_param_2": "partner.param2",
+    "session_param_1": "session_callback.param1",
+    "session_param_2": "session_callback.param2",
+    "partner_session_param_1": "session_partner.param1",
+    "partner_session_param_2": "session_partner.param2",
+    "remove_params": "remove_params"
+  },
+  "commands": {
+    "launch": "initialize",
+    "purchase": "trackevent",
+    "subscribe": "tracksubscription",
+    "push_token": "setpushtoken"
+  }
+}

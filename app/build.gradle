@@ -13,6 +13,11 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        buildConfigField 'String', 'TAG', "\"App\""
+        buildConfigField 'String', 'TEALIUM_INSTANCE', "\"main\""
+        buildConfigField 'String', 'TEALIUM_ACCOUNT', "\"tealiummobile\""
+        buildConfigField 'String', 'TEALIUM_PROFILE', "\"android\""
+        buildConfigField 'String', 'TEALIUM_ENVIRONMENT', "\"dev\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,4 +49,9 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation "com.tealium:kotlin-core:1.2.0"
+    implementation "com.tealium:kotlin-remotecommand-dispatcher:1.0.1"
+    implementation "com.tealium:kotlin-tagmanagement-dispatcher:1.0.2" // optional for tag management RCs
+    implementation project(":adjust")
 }
