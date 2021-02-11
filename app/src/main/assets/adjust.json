@@ -18,20 +18,37 @@
     "order_currency": "currency",
     "order_id": "order_id",
     "callback_id": "callback_id",
+    "source": "ad_revenue_source",
+    "payload": "ad_revenue_payload",
+    "sku": "sku",
+    "signature": "signature",
+    "purchase_token": "purchase_token",
     "event_param_1": "callback.param1",
     "event_param_2": "callback.param2",
     "partner_param_1": "partner.param1",
     "partner_param_2": "partner.param2",
     "session_param_1": "session_callback.param1",
     "session_param_2": "session_callback.param2",
+    "session_callback_params": "session_callback",
     "partner_session_param_1": "session_partner.param1",
     "partner_session_param_2": "session_partner.param2",
-    "remove_params": "remove_params"
+    "session_partner_params": "session_partner",
+    "consent_granted": "measurement_consent",
+    "enabled": "enabled,offline"
   },
   "commands": {
     "launch": "initialize",
     "purchase": "trackevent",
+    "event": "trackevent",
+    "ad_revenue": "trackadrevenue",
     "subscribe": "tracksubscription",
-    "push_token": "setpushtoken"
+    "push_token": "setpushtoken",
+    "add_session_callback": "addsessioncallbackparams",
+    "add_session_partner": "addsessionpartnerparams",
+    "contact": "trackevent",
+    "consent_revoked": "gdprforgetme,trackmeasurementconsent",
+    "consent_granted": "trackmeasurementconsent",
+    "disable": "setenabled",
+    "offline": "setofflinemode"
   }
 }

@@ -142,7 +142,8 @@ class AdjustRemoteCommandTests {
                 "USD",
                 mapOf("callback" to "value"),
                 mapOf("partner" to "value"),
-                "callbackId")
+                "callbackId"
+            )
         }
     }
 
@@ -298,10 +299,19 @@ class AdjustRemoteCommandTests {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
-                listOf (Commands.ADD_SESSION_CALLBACK_PARAMS, Commands.ADD_SESSION_PARTNER_PARAMS).joinToString()
+                listOf(
+                    Commands.ADD_SESSION_CALLBACK_PARAMS,
+                    Commands.ADD_SESSION_PARTNER_PARAMS
+                ).joinToString()
             )
-            put(Events.SESSION_CALLBACK_PARAMETERS, JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2")))
-            put(Events.SESSION_PARTNER_PARAMETERS, JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2")))
+            put(
+                Events.SESSION_CALLBACK_PARAMETERS,
+                JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2"))
+            )
+            put(
+                Events.SESSION_PARTNER_PARAMETERS,
+                JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2"))
+            )
         }
 
         adjustRemoteCommand.onInvoke(mockResponse)
@@ -323,7 +333,10 @@ class AdjustRemoteCommandTests {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
-                listOf (Commands.REMOVE_SESSION_CALLBACK_PARAMS, Commands.REMOVE_SESSION_PARTNER_PARAMS).joinToString()
+                listOf(
+                    Commands.REMOVE_SESSION_CALLBACK_PARAMS,
+                    Commands.REMOVE_SESSION_PARTNER_PARAMS
+                ).joinToString()
             )
             put(Events.REMOVE_SESSION_CALLBACK_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
             put(Events.REMOVE_SESSION_PARTNER_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
@@ -346,7 +359,10 @@ class AdjustRemoteCommandTests {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
-                listOf (Commands.RESET_SESSION_CALLBACK_PARAMS, Commands.RESET_SESSION_PARTNER_PARAMS).joinToString()
+                listOf(
+                    Commands.RESET_SESSION_CALLBACK_PARAMS,
+                    Commands.RESET_SESSION_PARTNER_PARAMS
+                ).joinToString()
             )
         }
 

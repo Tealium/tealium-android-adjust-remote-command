@@ -7,25 +7,33 @@ object DataLayer {
 
     // Event Properties
     const val EVENT_TOKEN = "event_token"
-
-    // User Properties
-    const val CUSTOMER_ID = "customer_id"
-    const val USERNAME = "username"
-
-    // Product Properties
-    const val PRODUCT_ID = "product_id"
-    const val PRODUCT_NAME = "product_name"
-    const val PRODUCT_CATEGORY = "product_category"
-    const val PRODUCT_QUANTITY = "product_quantity"
-    const val PRODUCT_PRICE = "product_price"
+    const val EVENT_PARAM_1 = "event_param_1"
+    const val EVENT_PARAM_2 = "event_param_2"
+    const val PARTNER_PARAM_1 = "partner_param_1"
+    const val PARTNER_PARAM_2 = "partner_param_2"
+    const val CALLBACK_ID = "callback_id"
 
     // Order Properties
     const val ORDER_CURRENCY = "order_currency"
     const val ORDER_ID = "order_id"
     const val ORDER_TOTAL = "order_total"
 
+    // Ad
+    const val SOURCE = "source"
+    const val PAYLOAD = "payload"
+
+    // Subscription
+    const val SKU = "sku"
+    const val SIGNATURE = "signature"
+    const val PURCHASE_TOKEN = "purchase_token"
+
+    const val CONSENT_GRANTED = "consent_granted"
+    const val ENABLED = "enabled"
+
     object EventTokens {
         const val LAUNCH = "f35pky"
         const val PURCHASE = "37obwl"
+        const val CONTACT = "t54mvx"
+        const val EVENT = "gtb7m2"
     }
 }

@@ -42,7 +42,8 @@ class AdjustCommandTests {
     fun initialize_Initializes_WhenRequiredParamsAvailable() {
         every { Adjust.onCreate(any()) } just Runs
 
-        adjustCommand.initialize("token",
+        adjustCommand.initialize(
+            "token",
             false,
             JSONObject()
         )
@@ -102,13 +103,15 @@ class AdjustCommandTests {
     fun sendEvent_DoesNotAddNullParams() {
         every { Adjust.trackEvent(any()) } just Runs
 
-        adjustCommand.sendEvent("token",
+        adjustCommand.sendEvent(
+            "token",
             null,
             null,
             null,
             null,
             null,
-            null)
+            null
+        )
 
         verify(exactly = 0) {
             anyConstructed<AdjustEvent>().setOrderId(any())
@@ -127,13 +130,15 @@ class AdjustCommandTests {
     fun sendEvent_AddsNonNullParams() {
         every { Adjust.trackEvent(any()) } just Runs
 
-        adjustCommand.sendEvent("token",
+        adjustCommand.sendEvent(
+            "token",
             "orderId",
             1.0,
             "USD",
             mapOf("callback_1" to "value_1", "callback_2" to "value_2"),
             mapOf("partner_1" to "value_1", "partner_2" to "value_2"),
-            "id")
+            "id"
+        )
 
         verify {
             anyConstructed<AdjustEvent>().setOrderId("orderId")
@@ -154,10 +159,12 @@ class AdjustCommandTests {
     fun addSessionCallbackParams_AddsAllParams() {
         every { Adjust.addSessionCallbackParameter(any(), any()) } just Runs
 
-        adjustCommand.addSessionCallbackParams(mapOf(
-            "string_1" to "value_1",
-            "string_2" to "value_2"
-        ))
+        adjustCommand.addSessionCallbackParams(
+            mapOf(
+                "string_1" to "value_1",
+                "string_2" to "value_2"
+            )
+        )
 
         verify {
             Adjust.addSessionCallbackParameter("string_1", "value_1")
@@ -169,10 +176,12 @@ class AdjustCommandTests {
     fun addPartnerCallbackParams_AddsAllParams() {
         every { Adjust.addSessionPartnerParameter(any(), any()) } just Runs
 
-        adjustCommand.addSessionPartnerParams(mapOf(
-            "string_1" to "value_1",
-            "string_2" to "value_2"
-        ))
+        adjustCommand.addSessionPartnerParams(
+            mapOf(
+                "string_1" to "value_1",
+                "string_2" to "value_2"
+            )
+        )
 
         verify {
             Adjust.addSessionPartnerParameter("string_1", "value_1")
@@ -184,10 +193,12 @@ class AdjustCommandTests {
     fun removeSessionCallbackParams_RemovesAllParams() {
         every { Adjust.removeSessionCallbackParameter(any()) } just Runs
 
-        adjustCommand.removeSessionCallbackParams(listOf(
-            "string_1",
-            "string_2"
-        ))
+        adjustCommand.removeSessionCallbackParams(
+            listOf(
+                "string_1",
+                "string_2"
+            )
+        )
 
         verify {
             Adjust.removeSessionCallbackParameter("string_1")
@@ -199,10 +210,12 @@ class AdjustCommandTests {
     fun addPartnerCallbackParams_RemovesAllParams() {
         every { Adjust.removeSessionCallbackParameter(any()) } just Runs
 
-        adjustCommand.removeSessionPartnerParams(listOf(
-            "string_1",
-            "string_2"
-        ))
+        adjustCommand.removeSessionPartnerParams(
+            listOf(
+                "string_1",
+                "string_2"
+            )
+        )
 
         verify {
             Adjust.removeSessionPartnerParameter("string_1")

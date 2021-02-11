@@ -67,7 +67,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
                         setPushToken(payload)
                     }
                     Commands.SET_ENABLED -> {
-                        setEnabled(payload)
+                        toggleEnabled(payload)
                     }
                     Commands.SET_OFFLINE_MODE -> {
                         setOfflineMode(payload)
@@ -156,7 +156,15 @@ class AdjustRemoteCommand @JvmOverloads constructor(
             payload.optJSONObject(Events.PARTNER_PARAMETERS)?.toTypedMap()
 
         adjustCommand.trackSubscription(
-            revenue, currency, sku, orderId, signature, purchaseToken, purchaseTime, callbackParams, partnerParams
+            revenue,
+            currency,
+            sku,
+            orderId,
+            signature,
+            purchaseToken,
+            purchaseTime,
+            callbackParams,
+            partnerParams
         )
     }
 
@@ -174,7 +182,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         }
     }
 
-    private fun setEnabled(payload: JSONObject) {
+    private fun toggleEnabled(payload: JSONObject) {
         if (payload.has(Misc.ENABLED)) {
             val enabled = payload.getBoolean(Misc.ENABLED)
             adjustCommand.setEnabled(enabled)
@@ -228,7 +236,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
 
     private fun addPartnerSessionCallbackParams(payload: JSONObject) {
         val partnerSessionParams: Map<String, String>? =
-            payload.optJSONObject(Events.SESSION_CALLBACK_PARAMETERS)?.toTypedMap()
+            payload.optJSONObject(Events.SESSION_PARTNER_PARAMETERS)?.toTypedMap()
         partnerSessionParams?.let {
             adjustCommand.addSessionPartnerParams(it)
         }
@@ -251,29 +259,29 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         private const val DEFAULT_COMMAND_DESC = "Tealium-Adjust Remote Command"
         private const val INVALID_REVENUE = -1.0
     }
-}
 
-private inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
-    val map = HashMap<String, T>()
-    keys().forEach { key ->
-        val value = this[key]
-        (value as? T)?.let {
-            map[key] = value
+    private inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
+        val map = HashMap<String, T>()
+        keys().forEach { key ->
+            val value = this[key]
+            (value as? T)?.let {
+                map[key] = value
+            }
         }
+        return map
     }
-    return map
-}
 
-private fun JSONArray.toStringList(): List<String> {
-    val list = mutableListOf<String>()
-    for (i in 0 until length()) {
-        getString(i)?.let {
-            list.add(it)
+    private fun JSONArray.toStringList(): List<String> {
+        val list = mutableListOf<String>()
+        for (i in 0 until length()) {
+            getString(i)?.let {
+                list.add(it)
+            }
         }
+        return list
     }
-    return list
-}
 
-private fun String.nullIfBlank(): String? {
-    return if (isBlank()) null else this
+    private fun String.nullIfBlank(): String? {
+        return if (isBlank()) null else this
+    }
 }

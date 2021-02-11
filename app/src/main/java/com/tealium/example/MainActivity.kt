@@ -17,7 +17,17 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            TealiumHelper.trackEvent("contact",
+                mapOf(
+                    DataLayer.EVENT_TOKEN to DataLayer.EventTokens.CONTACT,
+                    DataLayer.EVENT_PARAM_1 to "value_1",
+                    DataLayer.EVENT_PARAM_2 to "value_2",
+                    DataLayer.PARTNER_PARAM_1 to "value_1",
+                    DataLayer.PARTNER_PARAM_2 to "value_2",
+                    DataLayer.CALLBACK_ID to "callbackId"
+                )
+            )
+            Snackbar.make(view, "Contact Event Sent (t54mvx)", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
 
