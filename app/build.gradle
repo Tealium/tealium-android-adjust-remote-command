@@ -53,5 +53,6 @@ dependencies {
     implementation "com.tealium:kotlin-core:1.2.0"
     implementation "com.tealium:kotlin-remotecommand-dispatcher:1.0.1"
     implementation "com.tealium:kotlin-tagmanagement-dispatcher:1.0.2" // optional for tag management RCs
+    implementation 'com.android.installreferrer:installreferrer:2.2'
     implementation project(":adjust")
 }
