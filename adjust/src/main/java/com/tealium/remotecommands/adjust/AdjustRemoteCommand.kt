@@ -40,14 +40,14 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         }
     }
 
-    internal fun splitCommands(payload: JSONObject): Array<String> {
+    private fun splitCommands(payload: JSONObject): Array<String> {
         val commandString = payload.optString(Commands.COMMAND_NAME, "")
         return commandString.split(AdjustConstants.SEPARATOR).map {
             it.trim().toLowerCase(Locale.ROOT)
         }.toTypedArray()
     }
 
-    internal fun parseCommands(commands: Array<String>, payload: JSONObject) {
+    private fun parseCommands(commands: Array<String>, payload: JSONObject) {
         commands.forEach { command ->
             try {
                 when (command) {

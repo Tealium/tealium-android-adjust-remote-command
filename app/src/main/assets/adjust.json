@@ -1,6 +1,6 @@
 {
   "config": {
-    "api_token": "wv6wqpoxsqv4",
+    "api_token": "<your api token>",
     "sandbox": true,
     "settings": {
       "log_level": "debug",
