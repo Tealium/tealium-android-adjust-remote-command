@@ -22,6 +22,8 @@ object DataLayer {
     const val SOURCE = "source"
     const val PAYLOAD = "payload"
 
+    const val DEEPLINK_URL = "deeplink_url"
+
     // Subscription
     const val SKU = "sku"
     const val SIGNATURE = "signature"

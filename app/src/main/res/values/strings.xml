@@ -18,6 +18,7 @@
     <string name="ecommerce">E-Commerce</string>
     <string name="track_subscription">Track Subscription</string>
     <string name="track_ad_revenue">Track Ad Revenue</string>
+    <string name="track_deeplink">Trigger Deep Link</string>
     <string name="session_parameters">Session Parameters</string>
     <string name="events">Events</string>
     <string name="event">Event</string>

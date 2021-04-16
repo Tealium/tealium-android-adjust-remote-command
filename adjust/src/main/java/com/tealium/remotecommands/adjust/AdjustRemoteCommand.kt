@@ -1,7 +1,9 @@
 package com.tealium.remotecommands.adjust
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.adjust.sdk.AdjustConfig
 import com.tealium.remotecommands.RemoteCommand
 import org.json.JSONArray
@@ -62,6 +64,9 @@ class AdjustRemoteCommand @JvmOverloads constructor(
                     }
                     Commands.TRACK_AD_REVENUE -> {
                         trackAdRevenue(payload)
+                    }
+                    Commands.TRACK_DEEPLINK -> {
+                        appWillOpenUrl(payload)
                     }
                     Commands.SET_PUSH_TOKEN -> {
                         setPushToken(payload)
@@ -173,6 +178,13 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         val adPayload: JSONObject? = payload.optJSONObject(Events.AD_REVENUE_PAYLOAD)
         if (adSource != null && adPayload != null) {
             adjustCommand.trackAdRevenue(adSource, adPayload)
+        }
+    }
+
+    private fun appWillOpenUrl(payload: JSONObject) {
+        val url: Uri? = payload.optString(Events.DEEPLINK_URL, "").nullIfBlank()?.toUri()
+        if (url != null) {
+            adjustCommand.appWillOpenURL(url)
         }
     }
 

@@ -2,6 +2,7 @@ package com.tealium.remotecommands.adjust
 
 import android.app.Activity
 import android.app.Application
+import android.net.Uri
 import android.os.Bundle
 import com.adjust.sdk.*
 import org.json.JSONException
@@ -130,6 +131,10 @@ class AdjustInstance(
         params.entries.forEach {
             Adjust.addSessionCallbackParameter(it.key, it.value)
         }
+    }
+
+    override fun appWillOpenURL(url: Uri) {
+        Adjust.appWillOpenUrl(url, application.applicationContext)
     }
 
     override fun removeSessionCallbackParams(paramNames: List<String>) {

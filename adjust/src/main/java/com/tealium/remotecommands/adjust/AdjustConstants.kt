@@ -12,7 +12,7 @@ object Commands {
     const val TRACK_EVENT = "trackevent"
     const val TRACK_SUBSCRIPTION = "tracksubscription"
     const val TRACK_AD_REVENUE = "trackadrevenue"
-
+    const val TRACK_DEEPLINK = "appwillopenurl"
     const val SET_PUSH_TOKEN = "setpushtoken"
     const val SET_ENABLED = "setenabled"
     const val SET_OFFLINE_MODE = "setofflinemode"
@@ -73,6 +73,7 @@ object Events {
     const val REMOVE_SESSION_CALLBACK_PARAMETERS = "remove_session_callback_params"
     const val REMOVE_SESSION_PARTNER_PARAMETERS = "remove_session_partner_params"
 
+    const val DEEPLINK_URL = "deeplink_open_url"
     const val AD_REVENUE_SOURCE = "ad_revenue_source"
     const val AD_REVENUE_PAYLOAD = "ad_revenue_payload"
 }

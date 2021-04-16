@@ -1,5 +1,6 @@
 package com.tealium.remotecommands.adjust
 
+import android.net.Uri
 import com.adjust.sdk.AdjustConfig
 import org.json.JSONObject
 
@@ -66,6 +67,11 @@ interface AdjustCommand {
      * Sets the Adjust SDK to offline mode
      */
     fun setOfflineMode(enabled: Boolean)
+
+    /**
+     * Tracks deep link opening
+     * */
+    fun appWillOpenURL(url: Uri)
 
     /**
      * Requests for the user to be forgotten

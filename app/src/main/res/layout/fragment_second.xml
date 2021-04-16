@@ -74,6 +74,17 @@
         app:layout_constraintTop_toBottomOf="@+id/button_subscription" />
 
     <Button
+        android:id="@+id/button_deeplink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:text="@string/track_deeplink"
+        app:layout_constraintEnd_toEndOf="@+id/button_subscription"
+        app:layout_constraintHorizontal_bias="0.421"
+        app:layout_constraintStart_toStartOf="@+id/button_subscription"
+        app:layout_constraintTop_toBottomOf="@+id/button_subscription" />
+
+    <Button
         android:id="@+id/button_session_callback"
         android:layout_width="160dp"
         android:layout_height="48dp"
