@@ -1,0 +1,3 @@
+include ':adjust'
+include ':app'
+rootProject.name = "TealiumAdjust"
