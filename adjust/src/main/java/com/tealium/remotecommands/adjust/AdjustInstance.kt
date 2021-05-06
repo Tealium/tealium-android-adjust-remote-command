@@ -86,6 +86,11 @@ class AdjustInstance(
             }
         }
 
+        if (settings.has(Config.URL_STRATEGY)) {
+            val strategy = settings.optString(Config.URL_STRATEGY)
+            config.setUrlStrategy(strategy)
+        }
+
         initialize(config)
     }
 

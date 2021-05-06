@@ -45,6 +45,7 @@ object Config {
     const val DEFAULT_TRACKER = "default_tracker"
     const val EVENT_BUFFERING_ENABLED = "event_buffering_enabled"
     const val SEND_IN_BACKGROUND = "send_in_background"
+    const val URL_STRATEGY = "url_strategy"
 }
 
 object Misc {
