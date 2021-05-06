@@ -56,6 +56,7 @@ class AdjustCommandTests {
             anyConstructed<AdjustConfig>().setEventBufferingEnabled(any())
             anyConstructed<AdjustConfig>().setSendInBackground(any())
             anyConstructed<AdjustConfig>().setDefaultTracker(any())
+            anyConstructed<AdjustConfig>().setUrlStrategy(any())
         }
 
         verify {
@@ -81,6 +82,7 @@ class AdjustCommandTests {
                 put(ConstConfig.DEFAULT_TRACKER, "tracker")
                 put(ConstConfig.EVENT_BUFFERING_ENABLED, true)
                 put(ConstConfig.SEND_IN_BACKGROUND, true)
+                put(ConstConfig.URL_STRATEGY, "url_strategy_china")
             }
         )
 
@@ -92,6 +94,7 @@ class AdjustCommandTests {
             anyConstructed<AdjustConfig>().setEventBufferingEnabled(true)
             anyConstructed<AdjustConfig>().setSendInBackground(true)
             anyConstructed<AdjustConfig>().setDefaultTracker("tracker")
+            anyConstructed<AdjustConfig>().setUrlStrategy("url_strategy_china")
         }
 
         verify {

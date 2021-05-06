@@ -8,7 +8,8 @@
       "app_secret_info_1" : "",
       "app_secret_info_2" : "",
       "app_secret_info_3" : "",
-      "app_secret_info_4" : ""
+      "app_secret_info_4" : "",
+      "url_strategy" : ""
     }
   },
   "mappings": {

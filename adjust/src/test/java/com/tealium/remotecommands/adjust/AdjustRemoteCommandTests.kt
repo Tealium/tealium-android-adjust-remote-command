@@ -220,14 +220,14 @@ class AdjustRemoteCommandTests {
                 Commands.COMMAND_NAME,
                 Commands.TRACK_AD_REVENUE
             )
-            put(Events.AD_REVENUE_SOURCE, AdjustConfig.AD_REVENUE_ADDAPTR)
+            put(Events.AD_REVENUE_SOURCE, AdjustConfig.AD_REVENUE_ADMOB)
             put(Events.AD_REVENUE_PAYLOAD, JSONObject("{}"))
         }
 
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.trackAdRevenue(AdjustConfig.AD_REVENUE_ADDAPTR, match {
+            mockAdjustCommand.trackAdRevenue(AdjustConfig.AD_REVENUE_ADMOB, match {
                 it.toString() == "{}"
             })
         }
