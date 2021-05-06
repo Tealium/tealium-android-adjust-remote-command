@@ -44,7 +44,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.1'
 
     implementation 'com.tealium:remotecommands:1.0.0'
-    api 'com.adjust.sdk:adjust-android:4.2+'
+    api 'com.adjust.sdk:adjust-android:[4.26,5.0)'
     implementation 'com.android.installreferrer:installreferrer:2.2'
 
     testImplementation 'junit:junit:4.+'
@@ -58,6 +58,7 @@ afterEvaluate {
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                from components.release
                 groupId 'com.tealium.remotecommands'
                 artifactId 'adjust'
             }
