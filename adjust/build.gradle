@@ -60,14 +60,15 @@ afterEvaluate {
             }
         }
 
-        repositories {
-            maven {
-                url "s3://maven.tealiumiq.com/android/releases/"
-                credentials(AwsCredentials) {
-                    accessKey AWS_ACCESS_KEY
-                    secretKey AWS_SECRET_KEY
-                }
-            }
-        }
+//        repositories {
+//            maven {
+//                url "s3://maven.tealiumiq.com/android/releases/"
+//                credentials(AwsCredentials) {
+//                    accessKey AWS_ACCESS_KEY
+//                    secretKey AWS_SECRET_KEY
+//                    sessionToken AWS_SESSION_TOKEN
+//                }
+//            }
+//        }
     }
 }
