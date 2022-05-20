@@ -34,10 +34,12 @@ class AdjustCommandTests {
         mockkConstructor(AdjustConfig::class)
         mockkConstructor(AdjustEvent::class)
 
+        every { anyConstructed<AdjustConfig>().setAppSecret(any(),any(),any(),any(),any()) } just Runs
+        every { anyConstructed<AdjustEvent>().setOrderId(any()) } just Runs
+
         adjustCommand = AdjustInstance(mockApp)
     }
 
-    //TODO(Initialize)
     @Test
     fun initialize_Initializes_WhenRequiredParamsAvailable() {
         every { Adjust.onCreate(any()) } just Runs
@@ -57,6 +59,8 @@ class AdjustCommandTests {
             anyConstructed<AdjustConfig>().setSendInBackground(any())
             anyConstructed<AdjustConfig>().setDefaultTracker(any())
             anyConstructed<AdjustConfig>().setUrlStrategy(any())
+            anyConstructed<AdjustConfig>().setCoppaCompliantEnabled(any())
+            anyConstructed<AdjustConfig>().setPlayStoreKidsAppEnabled(any())
         }
 
         verify {
@@ -83,6 +87,8 @@ class AdjustCommandTests {
                 put(ConstConfig.EVENT_BUFFERING_ENABLED, true)
                 put(ConstConfig.SEND_IN_BACKGROUND, true)
                 put(ConstConfig.URL_STRATEGY, "url_strategy_china")
+                put(ConstConfig.COPPA_COMPLIANT, true)
+                put(ConstConfig.PLAY_STORE_KIDS_ENABLED, true)
             }
         )
 
@@ -95,6 +101,8 @@ class AdjustCommandTests {
             anyConstructed<AdjustConfig>().setSendInBackground(true)
             anyConstructed<AdjustConfig>().setDefaultTracker("tracker")
             anyConstructed<AdjustConfig>().setUrlStrategy("url_strategy_china")
+            anyConstructed<AdjustConfig>().setCoppaCompliantEnabled(true)
+            anyConstructed<AdjustConfig>().setPlayStoreKidsAppEnabled(true)
         }
 
         verify {

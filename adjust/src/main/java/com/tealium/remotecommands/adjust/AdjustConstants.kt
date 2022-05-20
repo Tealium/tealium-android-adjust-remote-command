@@ -46,6 +46,8 @@ object Config {
     const val EVENT_BUFFERING_ENABLED = "event_buffering_enabled"
     const val SEND_IN_BACKGROUND = "send_in_background"
     const val URL_STRATEGY = "url_strategy"
+    const val COPPA_COMPLIANT = "coppa_compliant"
+    const val PLAY_STORE_KIDS_ENABLED = "play_store_kids_enabled"
 }
 
 object Misc {

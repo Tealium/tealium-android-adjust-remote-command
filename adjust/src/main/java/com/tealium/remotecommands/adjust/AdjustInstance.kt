@@ -91,6 +91,16 @@ class AdjustInstance(
             config.setUrlStrategy(strategy)
         }
 
+        if (settings.has(Config.COPPA_COMPLIANT)) {
+            val coppaCompliant = settings.optBoolean(Config.COPPA_COMPLIANT)
+            config.setCoppaCompliantEnabled(coppaCompliant)
+        }
+
+        if (settings.has(Config.PLAY_STORE_KIDS_ENABLED)) {
+            val playStoreKidsEnabled = settings.optBoolean(Config.PLAY_STORE_KIDS_ENABLED)
+            config.setPlayStoreKidsAppEnabled(playStoreKidsEnabled)
+        }
+
         initialize(config)
     }
 

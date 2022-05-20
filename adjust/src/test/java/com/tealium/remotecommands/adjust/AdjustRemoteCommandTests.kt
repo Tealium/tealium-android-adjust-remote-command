@@ -318,11 +318,11 @@ class AdjustRemoteCommandTests {
 
         verify {
             mockAdjustCommand.addSessionCallbackParams(match {
-                it["key_1"] == "value_1"
+                it["key_1"] == "value_1" &&
                 it["key_2"] == "value_2"
             })
             mockAdjustCommand.addSessionPartnerParams(match {
-                it["key_1"] == "value_1"
+                it["key_1"] == "value_1" &&
                 it["key_2"] == "value_2"
             })
         }

@@ -26,7 +26,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
     private val adjustCommand: AdjustCommand = AdjustInstance(application),
     commandId: String = DEFAULT_COMMAND_ID,
     description: String = DEFAULT_COMMAND_DESC
-) : RemoteCommand(commandId, description) {
+) : RemoteCommand(commandId, description, BuildConfig.TEALIUM_ADJUST_VERSION) {
 
     init {
         adjustConfig?.let {
@@ -102,7 +102,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
                         removePartnerSessionCallbackParams(payload)
                     }
                     Commands.RESET_SESSION_PARTNER_PARAMS -> {
-                        resetPartnerSessionCallbackParams(payload)
+                        resetPartnerSessionCallbackParams()
                     }
                     else -> {
                         Log.d(AdjustConstants.TAG, "Invalid command name.")
@@ -262,7 +262,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         }
     }
 
-    private fun resetPartnerSessionCallbackParams(payload: JSONObject) {
+    private fun resetPartnerSessionCallbackParams() {
         adjustCommand.resetSessionPartnerParams()
     }
 
