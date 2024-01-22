@@ -231,14 +231,10 @@ class AdjustInstance(
     }
 
     override fun setThirdPartySharing(enabled: Boolean) {
-        if (!enabled) {
-            Adjust.disableThirdPartySharing(application)
-        } else {
-            val sharing = AdjustThirdPartySharing(true)
-            //  sharing.addGranularOption()
-            // TODO (how best to map granular options)
-            Adjust.trackThirdPartySharing(sharing)
-        }
+        val sharing = AdjustThirdPartySharing(enabled)
+        //  sharing.addGranularOption()
+        // TODO (how best to map granular options)
+        Adjust.trackThirdPartySharing(sharing)
     }
 
     override fun trackMeasurementConsent(consented: Boolean) {
