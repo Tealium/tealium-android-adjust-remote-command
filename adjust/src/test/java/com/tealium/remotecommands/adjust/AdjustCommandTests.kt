@@ -313,7 +313,9 @@ class AdjustCommandTests {
         adjustCommand.setThirdPartySharing(false)
 
         verifyOrder {
-            Adjust.disableThirdPartySharing(mockApp)
+            Adjust.trackThirdPartySharing(match {
+                it.enabled == false
+            })
         }
     }
 
@@ -324,7 +326,9 @@ class AdjustCommandTests {
         adjustCommand.setThirdPartySharing(true)
 
         verifyOrder {
-            Adjust.trackThirdPartySharing(any())
+            Adjust.trackThirdPartySharing(match {
+                it.enabled == true
+            })
         }
     }
 
