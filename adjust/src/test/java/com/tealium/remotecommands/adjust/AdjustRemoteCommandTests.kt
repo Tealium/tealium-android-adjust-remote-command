@@ -257,7 +257,7 @@ class AdjustRemoteCommandTests {
             mockAdjustCommand.setEnabled(true)
             mockAdjustCommand.setOfflineMode(false)
             mockAdjustCommand.trackMeasurementConsent(true)
-            mockAdjustCommand.setThirdPartySharing(false)
+            mockAdjustCommand.setThirdPartySharing(false, null)
         }
     }
 
