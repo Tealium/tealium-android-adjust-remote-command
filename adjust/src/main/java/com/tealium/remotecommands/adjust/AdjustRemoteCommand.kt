@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import com.adjust.sdk.AdjustConfig
 import com.tealium.remotecommands.RemoteCommand
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
@@ -213,10 +214,15 @@ class AdjustRemoteCommand @JvmOverloads constructor(
     }
 
     private fun setThirdPartySharing(payload: JSONObject) {
-        if (payload.has(Misc.THIRD_PARTY_SHARING_ENABLED)) {
-            val enabled = payload.getBoolean(Misc.THIRD_PARTY_SHARING_ENABLED)
-            adjustCommand.setThirdPartySharing(enabled)
+        // optBoolean, does not allow null returns
+        val enabled: Boolean? = try {
+            payload.getBoolean(Misc.THIRD_PARTY_SHARING_ENABLED)
+        } catch (ex: JSONException) {
+            null
         }
+        val options = payload.optJSONObject(Misc.THIRD_PARTY_SHARING_OPTIONS)
+
+        adjustCommand.setThirdPartySharing(enabled, options)
     }
 
     private fun trackMeasurementConsent(payload: JSONObject) {

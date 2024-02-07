@@ -307,10 +307,21 @@ class AdjustCommandTests {
     }
 
     @Test
+    fun setThirdPartySharing_NullDoesNotCallAdjust() {
+        every { Adjust.disableThirdPartySharing(any()) } just Runs
+
+        adjustCommand.setThirdPartySharing(null, null)
+
+        verify(inverse = true) {
+            Adjust.trackThirdPartySharing(any())
+        }
+    }
+
+    @Test
     fun setThirdPartySharing_Disables() {
         every { Adjust.disableThirdPartySharing(any()) } just Runs
 
-        adjustCommand.setThirdPartySharing(false)
+        adjustCommand.setThirdPartySharing(false, null)
 
         verifyOrder {
             Adjust.trackThirdPartySharing(match {
@@ -323,11 +334,42 @@ class AdjustCommandTests {
     fun setThirdPartySharing_Enables() {
         every { Adjust.disableThirdPartySharing(any()) } just Runs
 
-        adjustCommand.setThirdPartySharing(true)
+        adjustCommand.setThirdPartySharing(true, null)
 
         verifyOrder {
             Adjust.trackThirdPartySharing(match {
                 it.enabled == true
+            })
+        }
+    }
+
+    @Test
+    fun setThirdPartySharing_WithOptions_MapsOptions() {
+        every { Adjust.disableThirdPartySharing(any()) } just Runs
+        val options = JSONObject().apply {
+            put("facebook", JSONObject().apply {
+                put("data_processing_options_country", "1")
+                put("data_processing_options_state", 1000)
+            })
+            put("google_dma", JSONObject().apply {
+                put("eea", 1)
+                put("ad_personalization", 1)
+                put("ad_user_data", "0")
+            })
+        }
+
+        adjustCommand.setThirdPartySharing(null, options)
+
+        verify {
+            Adjust.trackThirdPartySharing(match {
+                val facebook = it.granularOptions["facebook"]!!
+                val google = it.granularOptions["google_dma"]!!
+
+                facebook["data_processing_options_country"] == "1"
+                        && facebook["data_processing_options_state"] == "1000"
+                        && google["eea"] == "1"
+                        && google["ad_personalization"] == "1"
+                        && google["ad_user_data"] == "0"
             })
         }
     }

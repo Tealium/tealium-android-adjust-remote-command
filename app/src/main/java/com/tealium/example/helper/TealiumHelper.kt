@@ -90,7 +90,15 @@ object TealiumHelper : UserConsentPreferencesUpdatedListener {
                 trackEvent(
                     "consent_revoked",
                     mapOf(
-                        DataLayer.CONSENT_GRANTED to false
+                        DataLayer.CONSENT_GRANTED to false,
+                        DataLayer.THIRD_PARTY_SHARING_OPTS to mapOf(
+                            // see: https://help.adjust.com/en/article/privacy-features-android-sdk#send-granular-options
+                            // e.g. "facebook"
+                            "partner" to mapOf(
+                                // e.g. "data_processing_options_country"
+                                "option" to "0"
+                            )
+                        )
                     )
                 )
             }
@@ -98,7 +106,13 @@ object TealiumHelper : UserConsentPreferencesUpdatedListener {
                 trackEvent(
                     "consent_granted",
                     mapOf(
-                        DataLayer.CONSENT_GRANTED to true
+                        DataLayer.CONSENT_GRANTED to true,
+                        DataLayer.THIRD_PARTY_SHARING_OPTS to mapOf(
+                            // e.g. "facebook"
+                            "partner" to mapOf(
+                                "option" to "1"
+                            )
+                        )
                     )
                 )
             }

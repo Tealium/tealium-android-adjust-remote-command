@@ -81,7 +81,7 @@ interface AdjustCommand {
     /**
      * Enables/disables third party sharing
      */
-    fun setThirdPartySharing(enabled: Boolean)
+    fun setThirdPartySharing(enabled: Boolean?, granularOptions: JSONObject?)
 
     /**
      * Tracks measurement consent
