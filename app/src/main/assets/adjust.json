@@ -37,7 +37,8 @@
     "partner_session_param_1": "session_partner.param1",
     "partner_session_param_2": "session_partner.param2",
     "session_partner_params": "session_partner",
-    "consent_granted": "measurement_consent",
+    "consent_granted": "measurement_consent,third_party_sharing_enabled",
+    "consent_opts": "third_party_sharing_options",
     "enabled": "enabled,offline"
   },
   "commands": {
@@ -51,8 +52,8 @@
     "add_session_callback": "addsessioncallbackparams",
     "add_session_partner": "addsessionpartnerparams",
     "contact": "trackevent",
-    "consent_revoked": "gdprforgetme,trackmeasurementconsent",
-    "consent_granted": "trackmeasurementconsent",
+    "consent_revoked": "gdprforgetme,trackmeasurementconsent,setthirdpartysharing",
+    "consent_granted": "trackmeasurementconsent,setthirdpartysharing",
     "disable": "setenabled",
     "offline": "setofflinemode"
   }

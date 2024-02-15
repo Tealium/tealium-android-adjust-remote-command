@@ -230,10 +230,22 @@ class AdjustInstance(
         Adjust.gdprForgetMe(application.applicationContext)
     }
 
-    override fun setThirdPartySharing(enabled: Boolean) {
+    override fun setThirdPartySharing(enabled: Boolean?, granularOptions: JSONObject?) {
+        if (enabled == null && granularOptions == null) return
+
         val sharing = AdjustThirdPartySharing(enabled)
-        //  sharing.addGranularOption()
-        // TODO (how best to map granular options)
+
+        granularOptions?.let { opts ->
+            for (thirdParty in opts.keys()) {
+                val thirdPartyOpts = opts.optJSONObject(thirdParty) ?: continue
+
+                for (thirdPartyOption in thirdPartyOpts.keys()) {
+                    val option = thirdPartyOpts.getString(thirdPartyOption)
+                    sharing.addGranularOption(thirdParty, thirdPartyOption, option)
+                }
+            }
+        }
+
         Adjust.trackThirdPartySharing(sharing)
     }
 

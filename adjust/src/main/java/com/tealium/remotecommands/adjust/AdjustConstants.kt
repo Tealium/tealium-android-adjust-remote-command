@@ -56,6 +56,7 @@ object Misc {
     const val PUSH_TOKEN = "push_token"
     const val MEASUREMENT_CONSENT = "measurement_consent"
     const val THIRD_PARTY_SHARING_ENABLED = "third_party_sharing_enabled"
+    const val THIRD_PARTY_SHARING_OPTIONS = "third_party_sharing_options"
 }
 
 object Events {

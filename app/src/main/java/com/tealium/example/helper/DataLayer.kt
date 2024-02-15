@@ -30,6 +30,7 @@ object DataLayer {
     const val PURCHASE_TOKEN = "purchase_token"
 
     const val CONSENT_GRANTED = "consent_granted"
+    const val THIRD_PARTY_SHARING_OPTS = "consent_opts"
     const val ENABLED = "enabled"
 
     object EventTokens {
