@@ -222,10 +222,10 @@ class AdjustInstance(
     }
 
     private fun AdjustAdRevenue.setAdRevenuePayload(adPayload: JSONObject) {
+        val revenueAmount: Double = adPayload.optDouble(Events.AD_REVENUE_AMOUNT)
+        val currency: String = adPayload.optString(Events.AD_REVENUE_CURRENCY) ?: ""
         val unit: String? = adPayload.optString(Events.AD_REVENUE_UNIT)
         val network: String? = adPayload.optString(Events.AD_REVENUE_NETWORK)
-        val revenueAmount: Double = adPayload.optDouble(Events.AD_REVENUE_AMOUNT)
-        val currency: String? = adPayload.optString(Events.AD_REVENUE_CURRENCY)
         val placement: String? = adPayload.optString(Events.AD_REVENUE_PLACEMENT)
         val impressionCount: Int = adPayload.optInt(Events.AD_REVENUE_IMPRESSIONS_COUNT)
         val callbackParameters: Map<String, String>? =
@@ -234,9 +234,19 @@ class AdjustInstance(
             adPayload.optJSONObject(Events.PARTNER_PARAMETERS)?.toTypedMap()
 
         this.setRevenue(revenueAmount, currency)
-        this.adRevenueUnit = unit
-        this.adRevenueNetwork = network
-        this.adRevenuePlacement = placement
+
+        unit?.let {
+            this.adRevenueUnit = it
+        }
+
+        network?.let {
+            this.adRevenueNetwork = it
+        }
+
+        placement?.let {
+            this.adRevenuePlacement = placement
+        }
+
         this.adImpressionsCount = impressionCount
         callbackParameters?.let { params ->
             params.forEach {
