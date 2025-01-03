@@ -1,6 +1,7 @@
 package com.tealium.remotecommands.adjust
 
 import android.net.Uri
+import com.adjust.sdk.AdjustAdRevenue
 import com.adjust.sdk.AdjustConfig
 import org.json.JSONObject
 
@@ -26,6 +27,7 @@ interface AdjustCommand {
     fun sendEvent(
         eventToken: String,
         orderId: String?,
+        deduplicationId: String?,
         revenue: Double?,
         currency: String?,
         callbackParams: Map<String, String>?,
@@ -51,7 +53,7 @@ interface AdjustCommand {
     /**
      * Tracks Ad Revenue
      */
-    fun trackAdRevenue(source: String, payload: JSONObject)
+    fun trackAdRevenue(adRevenue: AdjustAdRevenue)
 
     /**
      * Sets the push messaging token
@@ -89,32 +91,32 @@ interface AdjustCommand {
     fun trackMeasurementConsent(consented: Boolean)
 
     /**
-     * Adds the provided params as a Session Callback parameter.
+     * Adds the provided params as a Global Callback parameter.
      */
-    fun addSessionCallbackParams(params: Map<String, String>)
+    fun addGlobalCallbackParams(params: Map<String, String>)
 
     /**
-     * Removes Session Callback parameters using the list of key names.
+     * Removes Global Callback parameters using the list of key names.
      */
-    fun removeSessionCallbackParams(paramNames: List<String>)
+    fun removeGlobalCallbackParams(paramNames: List<String>)
 
     /**
-     * Resets all Session Callback parameters
+     * Resets all Global Callback parameters
      */
-    fun resetSessionCallbackParams()
+    fun resetGlobalCallbackParams()
 
     /**
-     * Adds the provided params as a Session Partner parameter.
+     * Adds the provided params as a Global Partner parameter.
      */
-    fun addSessionPartnerParams(params: Map<String, String>)
+    fun addGlobalPartnerParams(params: Map<String, String>)
 
     /**
-     * Removes Session Partner parameters using the list of key names.
+     * Removes Global Partner parameters using the list of key names.
      */
-    fun removeSessionPartnerParams(paramNames: List<String>)
+    fun removeGlobalPartnerParams(paramNames: List<String>)
 
     /**
-     * Resets all Session Partner parameters
+     * Resets all Global Partner parameters
      */
-    fun resetSessionPartnerParams()
+    fun resetGlobalPartnerParams()
 }

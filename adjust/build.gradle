@@ -42,7 +42,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
 
     api 'com.tealium:remotecommands:1.0.1'
-    api 'com.adjust.sdk:adjust-android:[4.30,5.0)'
+    api 'com.adjust.sdk:adjust-android:[5.0,6.0)'
     implementation 'com.android.installreferrer:installreferrer:2.2'
 
     testImplementation 'junit:junit:4.+'

@@ -1,7 +1,6 @@
 package com.tealium.remotecommands.adjust
 
 import android.app.Application
-import com.adjust.sdk.AdjustConfig
 import com.tealium.remotecommands.RemoteCommand
 import com.tealium.remotecommands.adjust.Config as ConstConfig
 import io.mockk.MockKAnnotations
@@ -10,6 +9,7 @@ import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +95,7 @@ class AdjustRemoteCommandTests {
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.sendEvent("token", any(), any(), any(), any(), any(), any())
+            mockAdjustCommand.sendEvent("token", any(), any(), any(), any(), any(), any(),any())
         }
     }
 
@@ -112,7 +112,7 @@ class AdjustRemoteCommandTests {
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify(exactly = 0) {
-            mockAdjustCommand.sendEvent(any(), any(), any(), any(), any(), any(), any())
+            mockAdjustCommand.sendEvent(any(), any(), any(), any(), any(), any(), any(), any())
         }
     }
 
@@ -127,6 +127,7 @@ class AdjustRemoteCommandTests {
             put(Events.REVENUE, 100)
             put(Events.CURRENCY, "USD")
             put(Events.ORDER_ID, "order123")
+            put(Events.DEDUPLICATION_ID, "dedup123")
             put(Events.CALLBACK_ID, "callbackId")
             put(Events.CALLBACK_PARAMETERS, JSONObject(mapOf("callback" to "value")))
             put(Events.PARTNER_PARAMETERS, JSONObject(mapOf("partner" to "value")))
@@ -138,6 +139,7 @@ class AdjustRemoteCommandTests {
             mockAdjustCommand.sendEvent(
                 "token",
                 "order123",
+                "dedup123",
                 100.0,
                 "USD",
                 mapOf("callback" to "value"),
@@ -220,16 +222,18 @@ class AdjustRemoteCommandTests {
                 Commands.COMMAND_NAME,
                 Commands.TRACK_AD_REVENUE
             )
-            put(Events.AD_REVENUE_SOURCE, AdjustConfig.AD_REVENUE_ADMOB)
+            put(Events.AD_REVENUE_SOURCE, "admob_sdk")
             put(Events.AD_REVENUE_PAYLOAD, JSONObject("{}"))
         }
 
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.trackAdRevenue(AdjustConfig.AD_REVENUE_ADMOB, match {
-                it.toString() == "{}"
-            })
+            mockAdjustCommand.trackAdRevenue(
+                withArg { adRevenue ->
+                    Assert.assertEquals("admob_sdk", adRevenue.source)
+                }
+            )
         }
     }
 
@@ -295,21 +299,21 @@ class AdjustRemoteCommandTests {
     }
 
     @Test
-    fun addSessionParams_GetAdded() {
+    fun addGlobalParams_GetAdded() {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
                 listOf(
-                    Commands.ADD_SESSION_CALLBACK_PARAMS,
-                    Commands.ADD_SESSION_PARTNER_PARAMS
+                    Commands.ADD_GLOBAL_CALLBACK_PARAMS,
+                    Commands.ADD_GLOBAL_PARTNER_PARAMS
                 ).joinToString()
             )
             put(
-                Events.SESSION_CALLBACK_PARAMETERS,
+                Events.GLOBAL_CALLBACK_PARAMETERS,
                 JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2"))
             )
             put(
-                Events.SESSION_PARTNER_PARAMETERS,
+                Events.GLOBAL_PARTNER_PARAMETERS,
                 JSONObject(mapOf("key_1" to "value_1", "key_2" to "value_2"))
             )
         }
@@ -317,11 +321,11 @@ class AdjustRemoteCommandTests {
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.addSessionCallbackParams(match {
+            mockAdjustCommand.addGlobalCallbackParams(match {
                 it["key_1"] == "value_1" &&
                 it["key_2"] == "value_2"
             })
-            mockAdjustCommand.addSessionPartnerParams(match {
+            mockAdjustCommand.addGlobalPartnerParams(match {
                 it["key_1"] == "value_1" &&
                 it["key_2"] == "value_2"
             })
@@ -329,39 +333,39 @@ class AdjustRemoteCommandTests {
     }
 
     @Test
-    fun removeSessionParams_GetRemoved() {
+    fun removeGlobalParams_GetRemoved() {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
                 listOf(
-                    Commands.REMOVE_SESSION_CALLBACK_PARAMS,
-                    Commands.REMOVE_SESSION_PARTNER_PARAMS
+                    Commands.REMOVE_GLOBAL_CALLBACK_PARAMS,
+                    Commands.REMOVE_GLOBAL_PARTNER_PARAMS
                 ).joinToString()
             )
-            put(Events.REMOVE_SESSION_CALLBACK_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
-            put(Events.REMOVE_SESSION_PARTNER_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
+            put(Events.REMOVE_GLOBAL_CALLBACK_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
+            put(Events.REMOVE_GLOBAL_PARTNER_PARAMETERS, JSONArray(listOf("key_1", "key_2")))
         }
 
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.removeSessionPartnerParams(match {
+            mockAdjustCommand.removeGlobalPartnerParams(match {
                 it.contains("key_1") && it.contains("key_2")
             })
-            mockAdjustCommand.removeSessionPartnerParams(match {
+            mockAdjustCommand.removeGlobalPartnerParams(match {
                 it.contains("key_1") && it.contains("key_2")
             })
         }
     }
 
     @Test
-    fun resetSessionParams_ResetsParams() {
+    fun resetGlobalParams_ResetsParams() {
         payload.apply {
             put(
                 Commands.COMMAND_NAME,
                 listOf(
-                    Commands.RESET_SESSION_CALLBACK_PARAMS,
-                    Commands.RESET_SESSION_PARTNER_PARAMS
+                    Commands.RESET_GLOBAL_CALLBACK_PARAMS,
+                    Commands.RESET_GLOBAL_PARTNER_PARAMS
                 ).joinToString()
             )
         }
@@ -369,8 +373,8 @@ class AdjustRemoteCommandTests {
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.resetSessionCallbackParams()
-            mockAdjustCommand.resetSessionPartnerParams()
+            mockAdjustCommand.resetGlobalCallbackParams()
+            mockAdjustCommand.resetGlobalPartnerParams()
         }
     }
 }
