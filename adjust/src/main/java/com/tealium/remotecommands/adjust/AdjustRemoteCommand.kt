@@ -196,46 +196,12 @@ class AdjustRemoteCommand @JvmOverloads constructor(
 
     private fun trackAdRevenue(payload: JSONObject) {
         val adSource: String? = payload.optString(Events.AD_REVENUE_SOURCE, "").nullIfBlank()
-        if (adSource != null) {
-            val adRevenue = AdjustAdRevenue(adSource)
-            val adPayload: JSONObject? = payload.optJSONObject(Events.AD_REVENUE_PAYLOAD)
-            if (adPayload != null) {
-                adRevenue.setAdRevenuePayload(adPayload)
-            }
-
-            adjustCommand.trackAdRevenue(adRevenue)
+        val adPayload: JSONObject? = payload.optJSONObject(Events.AD_REVENUE_PAYLOAD)
+        if (adSource != null && adPayload != null) {
+            adjustCommand.trackAdRevenue(adSource, adPayload)
         } else {
-            Log.d(AdjustConstants.TAG, "${Events.AD_REVENUE_SOURCE} key is required ")
+            Log.d(AdjustConstants.TAG, "${Events.AD_REVENUE_SOURCE} and ${Events.AD_REVENUE_PAYLOAD} keys are required ")
             return
-        }
-    }
-
-    private fun AdjustAdRevenue.setAdRevenuePayload(adPayload: JSONObject) {
-        val unit: String? = adPayload.optString(Events.AD_REVENUE_UNIT)
-        val network: String? = adPayload.optString(Events.AD_REVENUE_NETWORK)
-        val revenueAmount: Double = adPayload.optDouble(Events.AD_REVENUE_AMOUNT)
-        val currency: String? = adPayload.optString(Events.AD_REVENUE_CURRENCY)
-        val placement: String? = adPayload.optString(Events.AD_REVENUE_PLACEMENT)
-        val impressionCount: Int = adPayload.optInt(Events.AD_REVENUE_IMPRESSIONS_COUNT)
-        val callbackParameters: Map<String, String>? =
-            adPayload.optJSONObject(Events.CALLBACK_PARAMETERS)?.toTypedMap()
-        val partnerParameters: Map<String, String>? =
-            adPayload.optJSONObject(Events.PARTNER_PARAMETERS)?.toTypedMap()
-
-        this.setRevenue(revenueAmount, currency)
-        this.adRevenueUnit = unit
-        this.adRevenueNetwork = network
-        this.adRevenuePlacement = placement
-        this.adImpressionsCount = impressionCount
-        callbackParameters?.let { params ->
-            params.forEach {
-                this.addCallbackParameter(it.key, it.value)
-            }
-        }
-        partnerParameters?.let { params ->
-            params.forEach {
-                this.addPartnerParameter(it.key, it.value)
-            }
         }
     }
 
@@ -359,17 +325,17 @@ class AdjustRemoteCommand @JvmOverloads constructor(
             }
             return list
         }
-    }
 
-    private inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
-        val map = HashMap<String, T>()
-        keys().forEach { key ->
-            val value = this[key]
-            (value as? T)?.let {
-                map[key] = value
+        inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
+            val map = HashMap<String, T>()
+            keys().forEach { key ->
+                val value = this[key]
+                (value as? T)?.let {
+                    map[key] = value
+                }
             }
+            return map
         }
-        return map
     }
 
     private fun String.nullIfBlank(): String? {

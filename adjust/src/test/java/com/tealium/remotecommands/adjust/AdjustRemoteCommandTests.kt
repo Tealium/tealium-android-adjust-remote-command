@@ -229,11 +229,9 @@ class AdjustRemoteCommandTests {
         adjustRemoteCommand.onInvoke(mockResponse)
 
         verify {
-            mockAdjustCommand.trackAdRevenue(
-                withArg { adRevenue ->
-                    Assert.assertEquals("admob_sdk", adRevenue.source)
-                }
-            )
+            mockAdjustCommand.trackAdRevenue("admob_sdk", match {
+                it.toString() == "{}"
+            })
         }
     }
 

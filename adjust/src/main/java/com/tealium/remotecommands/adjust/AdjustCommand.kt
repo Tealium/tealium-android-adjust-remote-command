@@ -53,7 +53,7 @@ interface AdjustCommand {
     /**
      * Tracks Ad Revenue
      */
-    fun trackAdRevenue(adRevenue: AdjustAdRevenue)
+    fun trackAdRevenue(source: String, payload: JSONObject)
 
     /**
      * Sets the push messaging token

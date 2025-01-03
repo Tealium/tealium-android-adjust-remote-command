@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import com.adjust.sdk.*
 import com.tealium.remotecommands.adjust.AdjustRemoteCommand.Companion.toStringList
+import com.tealium.remotecommands.adjust.AdjustRemoteCommand.Companion.toTypedMap
 import org.json.JSONObject
 
 class AdjustInstance(
@@ -213,8 +214,40 @@ class AdjustInstance(
         Adjust.trackPlayStoreSubscription(subscription)
     }
 
-    override fun trackAdRevenue(adRevenue: AdjustAdRevenue) {
+    override fun trackAdRevenue(source: String, payload: JSONObject) {
+        val adRevenue = AdjustAdRevenue(source)
+        adRevenue.setAdRevenuePayload(payload)
+
         Adjust.trackAdRevenue(adRevenue)
+    }
+
+    private fun AdjustAdRevenue.setAdRevenuePayload(adPayload: JSONObject) {
+        val unit: String? = adPayload.optString(Events.AD_REVENUE_UNIT)
+        val network: String? = adPayload.optString(Events.AD_REVENUE_NETWORK)
+        val revenueAmount: Double = adPayload.optDouble(Events.AD_REVENUE_AMOUNT)
+        val currency: String? = adPayload.optString(Events.AD_REVENUE_CURRENCY)
+        val placement: String? = adPayload.optString(Events.AD_REVENUE_PLACEMENT)
+        val impressionCount: Int = adPayload.optInt(Events.AD_REVENUE_IMPRESSIONS_COUNT)
+        val callbackParameters: Map<String, String>? =
+            adPayload.optJSONObject(Events.CALLBACK_PARAMETERS)?.toTypedMap()
+        val partnerParameters: Map<String, String>? =
+            adPayload.optJSONObject(Events.PARTNER_PARAMETERS)?.toTypedMap()
+
+        this.setRevenue(revenueAmount, currency)
+        this.adRevenueUnit = unit
+        this.adRevenueNetwork = network
+        this.adRevenuePlacement = placement
+        this.adImpressionsCount = impressionCount
+        callbackParameters?.let { params ->
+            params.forEach {
+                this.addCallbackParameter(it.key, it.value)
+            }
+        }
+        partnerParameters?.let { params ->
+            params.forEach {
+                this.addPartnerParameter(it.key, it.value)
+            }
+        }
     }
 
     override fun setPushToken(token: String) {
