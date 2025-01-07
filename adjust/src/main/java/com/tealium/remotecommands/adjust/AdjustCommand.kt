@@ -1,7 +1,6 @@
 package com.tealium.remotecommands.adjust
 
 import android.net.Uri
-import com.adjust.sdk.AdjustAdRevenue
 import com.adjust.sdk.AdjustConfig
 import org.json.JSONObject
 

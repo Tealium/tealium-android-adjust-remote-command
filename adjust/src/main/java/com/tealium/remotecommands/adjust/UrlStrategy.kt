@@ -7,13 +7,41 @@ data class UrlStrategy(
 ) {
     companion object {
         val defaultStrategies: Map<String, UrlStrategy> = mapOf(
-            "DataResidencyEU" to UrlStrategy(listOf("eu.adjust.com"), true, true),
-            "DataResidencyTR" to UrlStrategy(listOf("tr.adjust.com"), true, true),
-            "ADJDataResidencyUS" to UrlStrategy(listOf("us.adjust.com"), true, true),
-            "UrlStrategyChina" to UrlStrategy(listOf("adjust.world", "adjust.com"), true, false),
-            "UrlStrategyCn" to UrlStrategy(listOf("adjust.cn", "adjust.com"), true, false),
-            "UrlStrategyCnOnly" to UrlStrategy(listOf("adjust.cn"), true, false),
-            "UrlStrategyIndia" to UrlStrategy(listOf("adjust.net.in", "adjust.com"), true, false)
+            "DataResidencyEU" to UrlStrategy(
+                domains = listOf("eu.adjust.com"),
+                useSubdomains = true,
+                isDataResidency = true
+            ),
+            "DataResidencyTR" to UrlStrategy(
+                domains = listOf("tr.adjust.com"),
+                useSubdomains = true,
+                isDataResidency = true
+            ),
+            "ADJDataResidencyUS" to UrlStrategy(
+                domains = listOf("us.adjust.com"),
+                useSubdomains = true,
+                isDataResidency = true
+            ),
+            "UrlStrategyChina" to UrlStrategy(
+                domains = listOf("adjust.world", "adjust.com"),
+                useSubdomains = true,
+                isDataResidency = false
+            ),
+            "UrlStrategyCn" to UrlStrategy(
+                domains = listOf("adjust.cn", "adjust.com"),
+                useSubdomains = true,
+                isDataResidency = false
+            ),
+            "UrlStrategyCnOnly" to UrlStrategy(
+                domains = listOf("adjust.cn"),
+                useSubdomains = true,
+                isDataResidency = false
+            ),
+            "UrlStrategyIndia" to UrlStrategy(
+                domains = listOf("adjust.net.in", "adjust.com"),
+                useSubdomains = true,
+                isDataResidency = false
+            )
         )
     }
 }

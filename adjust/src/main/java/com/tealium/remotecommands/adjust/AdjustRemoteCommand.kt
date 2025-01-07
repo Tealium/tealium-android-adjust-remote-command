@@ -4,7 +4,6 @@ import android.app.Application
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
-import com.adjust.sdk.AdjustAdRevenue
 import com.adjust.sdk.AdjustConfig
 import com.tealium.remotecommands.RemoteCommand
 import org.json.JSONArray
