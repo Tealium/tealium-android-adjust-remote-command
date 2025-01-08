@@ -1,5 +1,7 @@
 package com.tealium.example
 
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -58,13 +60,13 @@ class MainFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        v?.id.let { id ->
+        v?.let { view ->
             when (id) {
                 R.id.button_event -> { trackEvent() }
                 R.id.button_event_with_params -> { trackEventWithParams() }
                 R.id.button_opt_in -> { optIn() }
                 R.id.button_opt_out -> { optOut() }
-                R.id.button_disable_sdk -> { toggleSdkEnabled() }
+                R.id.button_disable_sdk -> { toggleSdkEnabled(view.context) }
                 R.id.button_offline_mode -> { setOffline() }
             }
         }
@@ -96,19 +98,21 @@ class MainFragment : Fragment(), View.OnClickListener {
         Tealium[BuildConfig.TEALIUM_INSTANCE]?.consentManager?.userConsentStatus = ConsentStatus.NOT_CONSENTED
     }
 
-    private fun toggleSdkEnabled() {
-        val wasEnabled = Adjust.isEnabled()
-
-        TealiumHelper.trackEvent("disable",
-            mapOf(
-                DataLayer.ENABLED to !wasEnabled
+    private fun toggleSdkEnabled(context: Context) {
+        Adjust.isEnabled(context) { isEnabled ->
+            TealiumHelper.trackEvent("disable",
+                mapOf(
+                    DataLayer.ENABLED to !isEnabled
+                )
             )
-        )
 
-        if (!wasEnabled) {
-            disableSdkButton.text = "Disable SDK"
-        } else {
-            disableSdkButton.text = "Enable SDK"
+            if (!isEnabled) {
+                disableSdkButton.text = "Disable SDK"
+            } else {
+                disableSdkButton.text = "Enable SDK"
+            }
+
+
         }
     }
 

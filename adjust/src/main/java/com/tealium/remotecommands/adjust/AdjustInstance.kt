@@ -5,9 +5,9 @@ import android.app.Application
 import android.net.Uri
 import android.os.Bundle
 import com.adjust.sdk.*
-import org.json.JSONException
+import com.tealium.remotecommands.adjust.AdjustRemoteCommand.Companion.toStringList
+import com.tealium.remotecommands.adjust.AdjustRemoteCommand.Companion.toTypedMap
 import org.json.JSONObject
-
 
 class AdjustInstance(
     private val application: Application
@@ -37,7 +37,7 @@ class AdjustInstance(
                 "warn" -> LogLevel.WARN
                 "error" -> LogLevel.ERROR
                 "assert" -> LogLevel.ASSERT
-                "suppress" -> LogLevel.SUPRESS
+                "suppress" -> LogLevel.SUPPRESS
                 else -> null
             }
             level?.let {
@@ -45,60 +45,59 @@ class AdjustInstance(
             }
         }
 
-        try {
-            val appSecret = settings.getLong(Config.SECRET_ID)
-            val info1 = settings.getLong(Config.SECRET_INFO_1)
-            val info2 = settings.getLong(Config.SECRET_INFO_2)
-            val info3 = settings.getLong(Config.SECRET_INFO_3)
-            val info4 = settings.getLong(Config.SECRET_INFO_4)
-
-            config.setAppSecret(appSecret, info1, info2, info3, info4)
-        } catch (jex: JSONException) {
-
-        }
-
-        if (settings.has(Config.DELAY_START)) {
-            val delay = settings.optDouble(Config.DELAY_START, -1.0)
-            if (delay != -1.0) {
-                config.setDelayStart(delay)
-            }
-        }
-
         if (settings.has(Config.PREINSTALL_TRACKING)) {
             val enabled = settings.optBoolean(Config.PREINSTALL_TRACKING)
-            config.setPreinstallTrackingEnabled(enabled)
-        }
-
-        if (settings.has(Config.EVENT_BUFFERING_ENABLED)) {
-            val enabled = settings.optBoolean(Config.EVENT_BUFFERING_ENABLED)
-            config.setEventBufferingEnabled(enabled)
+            if (enabled) {
+                config.enablePreinstallTracking()
+            }
         }
 
         if (settings.has(Config.SEND_IN_BACKGROUND)) {
             val enabled = settings.optBoolean(Config.SEND_IN_BACKGROUND)
-            config.setSendInBackground(enabled)
+            if (enabled) {
+                config.enableSendingInBackground()
+            }
         }
 
         if (settings.has(Config.DEFAULT_TRACKER)) {
             val defaultTracker = settings.optString(Config.DEFAULT_TRACKER, "")
             if (defaultTracker.isNotEmpty()) {
-                config.setDefaultTracker(defaultTracker)
+                config.defaultTracker = defaultTracker
             }
         }
 
-        if (settings.has(Config.URL_STRATEGY)) {
-            val strategy = settings.optString(Config.URL_STRATEGY)
-            config.setUrlStrategy(strategy)
+        val strategyKey = settings.optString(Config.URL_STRATEGY)
+        val strategy = UrlStrategy.defaultStrategies[strategyKey]
+        if (strategy != null) {
+            config.setUrlStrategy(
+                strategy.domains,
+                strategy.useSubdomains,
+                strategy.isDataResidency
+            )
+        } else {
+            val domains = settings.optJSONArray(Config.URL_STRATEGY_DOMAINS)?.toStringList()
+            val useSubdomains = settings.optBoolean(Config.URL_STRATEGY_USE_SUBDOMAIN)
+            val isDataResidency = settings.optBoolean(Config.URL_STRATEGY_IS_RESIDENCY)
+            config.setUrlStrategy(domains, useSubdomains, isDataResidency)
         }
 
         if (settings.has(Config.COPPA_COMPLIANT)) {
             val coppaCompliant = settings.optBoolean(Config.COPPA_COMPLIANT)
-            config.setCoppaCompliantEnabled(coppaCompliant)
+            if (coppaCompliant) {
+                config.enableCoppaCompliance()
+            }
         }
 
         if (settings.has(Config.PLAY_STORE_KIDS_ENABLED)) {
             val playStoreKidsEnabled = settings.optBoolean(Config.PLAY_STORE_KIDS_ENABLED)
-            config.setPlayStoreKidsAppEnabled(playStoreKidsEnabled)
+            if (playStoreKidsEnabled) {
+                config.enablePlayStoreKidsCompliance()
+            }
+        }
+
+        if (settings.has(Config.DEDUPLICATION_ID_MAX_SIZE)) {
+            val deduplicationIdMaxSize = settings.optInt(Config.DEDUPLICATION_ID_MAX_SIZE)
+                config.eventDeduplicationIdsMaxSize = deduplicationIdMaxSize
         }
 
         initialize(config)
@@ -107,7 +106,7 @@ class AdjustInstance(
     override fun initialize(config: AdjustConfig) {
         if (initialized) return
 
-        Adjust.onCreate(config)
+        Adjust.initSdk(config)
         initialized = true
 
         if (needsResume) Adjust.onResume()
@@ -116,6 +115,7 @@ class AdjustInstance(
     override fun sendEvent(
         eventToken: String,
         orderId: String?,
+        deduplicationId: String?,
         revenue: Double?,
         currency: String?,
         callbackParams: Map<String, String>?,
@@ -124,13 +124,16 @@ class AdjustInstance(
     ) {
         val event = AdjustEvent(eventToken)
         orderId?.let {
-            event.setOrderId(it)
+            event.orderId = it
         }
+
+        event.deduplicationId = deduplicationId ?: orderId
+        
         revenue?.let {
             event.setRevenue(it, currency)
         }
         callbackId?.let {
-            event.setCallbackId(it)
+            event.callbackId = it
         }
         callbackParams?.forEach {
             event.addCallbackParameter(it.key, it.value)
@@ -142,40 +145,40 @@ class AdjustInstance(
         Adjust.trackEvent(event)
     }
 
-    override fun addSessionCallbackParams(params: Map<String, String>) {
-        params.entries.forEach {
-            Adjust.addSessionCallbackParameter(it.key, it.value)
-        }
-    }
-
     override fun appWillOpenURL(url: Uri) {
-        Adjust.appWillOpenUrl(url, application.applicationContext)
+        Adjust.processDeeplink(AdjustDeeplink(url), application.applicationContext)
     }
 
-    override fun removeSessionCallbackParams(paramNames: List<String>) {
-        paramNames.forEach {
-            Adjust.removeSessionCallbackParameter(it)
-        }
-    }
-
-    override fun resetSessionCallbackParams() {
-        Adjust.resetSessionCallbackParameters()
-    }
-
-    override fun addSessionPartnerParams(params: Map<String, String>) {
+    override fun addGlobalCallbackParams(params: Map<String, String>) {
         params.entries.forEach {
-            Adjust.addSessionPartnerParameter(it.key, it.value)
+            Adjust.addGlobalCallbackParameter(it.key, it.value)
         }
     }
 
-    override fun removeSessionPartnerParams(paramNames: List<String>) {
+    override fun removeGlobalCallbackParams(paramNames: List<String>) {
         paramNames.forEach {
-            Adjust.removeSessionPartnerParameter(it)
+            Adjust.removeGlobalCallbackParameter(it)
         }
     }
 
-    override fun resetSessionPartnerParams() {
-        Adjust.resetSessionPartnerParameters()
+    override fun resetGlobalCallbackParams() {
+        Adjust.removeGlobalCallbackParameters()
+    }
+
+    override fun addGlobalPartnerParams(params: Map<String, String>) {
+        params.entries.forEach {
+            Adjust.addGlobalPartnerParameter(it.key, it.value)
+        }
+    }
+
+    override fun removeGlobalPartnerParams(paramNames: List<String>) {
+        paramNames.forEach {
+            Adjust.removeGlobalPartnerParameter(it)
+        }
+    }
+
+    override fun resetGlobalPartnerParams() {
+        Adjust.removeGlobalPartnerParameters()
     }
 
     override fun trackSubscription(
@@ -197,7 +200,8 @@ class AdjustInstance(
             signature,
             purchaseToken
         )
-        subscription.setPurchaseTime(purchaseTime)
+
+        subscription.purchaseTime = purchaseTime
 
         callbackParams?.forEach {
             subscription.addCallbackParameter(it.key, it.value)
@@ -211,7 +215,49 @@ class AdjustInstance(
     }
 
     override fun trackAdRevenue(source: String, payload: JSONObject) {
-        Adjust.trackAdRevenue(source, payload)
+        val adRevenue = AdjustAdRevenue(source)
+        adRevenue.setAdRevenuePayload(payload)
+
+        Adjust.trackAdRevenue(adRevenue)
+    }
+
+    private fun AdjustAdRevenue.setAdRevenuePayload(adPayload: JSONObject) {
+        val revenueAmount: Double = adPayload.optDouble(Events.AD_REVENUE_AMOUNT)
+        val currency: String = adPayload.optString(Events.AD_REVENUE_CURRENCY) ?: ""
+        val unit: String? = adPayload.optString(Events.AD_REVENUE_UNIT)
+        val network: String? = adPayload.optString(Events.AD_REVENUE_NETWORK)
+        val placement: String? = adPayload.optString(Events.AD_REVENUE_PLACEMENT)
+        val impressionCount: Int = adPayload.optInt(Events.AD_REVENUE_IMPRESSIONS_COUNT)
+        val callbackParameters: Map<String, String>? =
+            adPayload.optJSONObject(Events.CALLBACK_PARAMETERS)?.toTypedMap()
+        val partnerParameters: Map<String, String>? =
+            adPayload.optJSONObject(Events.PARTNER_PARAMETERS)?.toTypedMap()
+
+        this.setRevenue(revenueAmount, currency)
+
+        unit?.let {
+            this.adRevenueUnit = it
+        }
+
+        network?.let {
+            this.adRevenueNetwork = it
+        }
+
+        placement?.let {
+            this.adRevenuePlacement = placement
+        }
+
+        this.adImpressionsCount = impressionCount
+        callbackParameters?.let { params ->
+            params.forEach {
+                this.addCallbackParameter(it.key, it.value)
+            }
+        }
+        partnerParameters?.let { params ->
+            params.forEach {
+                this.addPartnerParameter(it.key, it.value)
+            }
+        }
     }
 
     override fun setPushToken(token: String) {
@@ -219,11 +265,19 @@ class AdjustInstance(
     }
 
     override fun setEnabled(enabled: Boolean) {
-        Adjust.setEnabled(enabled)
+        if (enabled) {
+            Adjust.enable()
+        } else {
+            Adjust.disable()
+        }
     }
 
     override fun setOfflineMode(enabled: Boolean) {
-        Adjust.setOfflineMode(enabled)
+        if (enabled) {
+            Adjust.switchToOfflineMode()
+        } else {
+            Adjust.switchBackToOnlineMode()
+        }
     }
 
     override fun gdprForgetMe() {

@@ -108,7 +108,7 @@ class SecondFragment : Fragment(), View.OnClickListener {
     private fun trackAdRevenue() {
         TealiumHelper.trackEvent("ad_revenue",
             mapOf(
-                DataLayer.SOURCE to AdjustConfig.AD_REVENUE_ADMOB,
+                DataLayer.SOURCE to "admob_sdk",
                 DataLayer.PAYLOAD to mapOf<String, String>()
             )
         )

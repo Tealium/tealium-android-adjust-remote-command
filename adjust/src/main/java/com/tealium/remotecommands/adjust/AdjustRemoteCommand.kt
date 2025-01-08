@@ -9,7 +9,7 @@ import com.tealium.remotecommands.RemoteCommand
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
+import java.util.Locale
 
 /**
  * Remote Command implementation for the Adjust SDK.
@@ -57,54 +57,71 @@ class AdjustRemoteCommand @JvmOverloads constructor(
                     Commands.INITIALIZE -> {
                         initialize(payload)
                     }
+
                     Commands.TRACK_EVENT -> {
                         logEvent(payload)
                     }
+
                     Commands.TRACK_SUBSCRIPTION -> {
                         trackSubscription(payload)
                     }
+
                     Commands.TRACK_AD_REVENUE -> {
                         trackAdRevenue(payload)
                     }
+
                     Commands.TRACK_DEEPLINK -> {
                         appWillOpenUrl(payload)
                     }
+
                     Commands.SET_PUSH_TOKEN -> {
                         setPushToken(payload)
                     }
+
                     Commands.SET_ENABLED -> {
                         toggleEnabled(payload)
                     }
+
                     Commands.SET_OFFLINE_MODE -> {
                         setOfflineMode(payload)
                     }
+
                     Commands.GDPR_FORGET_ME -> {
                         gdprForgetMe(payload)
                     }
+
                     Commands.SET_THIRD_PARTY_SHARING -> {
                         setThirdPartySharing(payload)
                     }
+
                     Commands.TRACK_MEASUREMENT_CONSENT -> {
                         trackMeasurementConsent(payload)
                     }
-                    Commands.ADD_SESSION_CALLBACK_PARAMS -> {
-                        addSessionCallbackParams(payload)
+
+                    Commands.ADD_GLOBAL_CALLBACK_PARAMS, Commands.ADD_SESSION_CALLBACK_PARAMS -> {
+                        addGlobalCallbackParams(payload)
                     }
-                    Commands.REMOVE_SESSION_CALLBACK_PARAMS -> {
-                        removeSessionCallbackParams(payload)
+
+                    Commands.REMOVE_GLOBAL_CALLBACK_PARAMS, Commands.REMOVE_SESSION_CALLBACK_PARAMS -> {
+                        removeGlobalCallbackParams(payload)
                     }
-                    Commands.RESET_SESSION_CALLBACK_PARAMS -> {
-                        resetSessionCallbackParams(payload)
+
+                    Commands.RESET_GLOBAL_CALLBACK_PARAMS, Commands.RESET_SESSION_CALLBACK_PARAMS -> {
+                        resetGlobalCallbackParams(payload)
                     }
-                    Commands.ADD_SESSION_PARTNER_PARAMS -> {
-                        addPartnerSessionCallbackParams(payload)
+
+                    Commands.ADD_GLOBAL_PARTNER_PARAMS, Commands.ADD_SESSION_PARTNER_PARAMS -> {
+                        addPartnerGlobalCallbackParams(payload)
                     }
-                    Commands.REMOVE_SESSION_PARTNER_PARAMS -> {
-                        removePartnerSessionCallbackParams(payload)
+
+                    Commands.REMOVE_GLOBAL_PARTNER_PARAMS, Commands.REMOVE_SESSION_PARTNER_PARAMS -> {
+                        removePartnerGlobalCallbackParams(payload)
                     }
-                    Commands.RESET_SESSION_PARTNER_PARAMS -> {
-                        resetPartnerSessionCallbackParams()
+
+                    Commands.RESET_GLOBAL_PARTNER_PARAMS, Commands.RESET_SESSION_PARTNER_PARAMS -> {
+                        resetPartnerGlobalCallbackParams()
                     }
+
                     else -> {
                         Log.d(AdjustConstants.TAG, "Invalid command name.")
                     }
@@ -130,6 +147,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         val revenue: Double? = payload.optDouble(Events.REVENUE, INVALID_REVENUE)
             .let { if (it == INVALID_REVENUE) null else it }
         val currency: String? = payload.optString(Events.CURRENCY).nullIfBlank()
+        val deduplicationId: String? = payload.optString(Events.DEDUPLICATION_ID, "").nullIfBlank()
         val orderId: String? = payload.optString(Events.ORDER_ID, "").nullIfBlank()
         val callbackId: String? = payload.optString(Events.CALLBACK_ID, "").nullIfBlank()
         val callbackParams: Map<String, String>? =
@@ -140,6 +158,7 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         adjustCommand.sendEvent(
             eventToken,
             orderId,
+            deduplicationId,
             revenue,
             currency,
             callbackParams,
@@ -179,6 +198,9 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         val adPayload: JSONObject? = payload.optJSONObject(Events.AD_REVENUE_PAYLOAD)
         if (adSource != null && adPayload != null) {
             adjustCommand.trackAdRevenue(adSource, adPayload)
+        } else {
+            Log.d(AdjustConstants.TAG, "${Events.AD_REVENUE_SOURCE} and ${Events.AD_REVENUE_PAYLOAD} keys are required ")
+            return
         }
     }
 
@@ -232,71 +254,87 @@ class AdjustRemoteCommand @JvmOverloads constructor(
         }
     }
 
-    private fun addSessionCallbackParams(payload: JSONObject) {
+    private fun addGlobalCallbackParams(payload: JSONObject) {
+        val globalParams: Map<String, String>? =
+            payload.optJSONObject(Events.GLOBAL_CALLBACK_PARAMETERS)?.toTypedMap()
         val sessionParams: Map<String, String>? =
             payload.optJSONObject(Events.SESSION_CALLBACK_PARAMETERS)?.toTypedMap()
-        sessionParams?.let {
-            adjustCommand.addSessionCallbackParams(it)
+
+        val params = globalParams ?: sessionParams
+        params?.let {
+            adjustCommand.addGlobalCallbackParams(it)
         }
     }
 
-    private fun removeSessionCallbackParams(payload: JSONObject) {
+    private fun removeGlobalCallbackParams(payload: JSONObject) {
+        val globalParams: List<String>? =
+            payload.optJSONArray(Events.REMOVE_GLOBAL_CALLBACK_PARAMETERS)?.toStringList()
         val sessionParams: List<String>? =
             payload.optJSONArray(Events.REMOVE_SESSION_CALLBACK_PARAMETERS)?.toStringList()
-        sessionParams?.let {
-            adjustCommand.removeSessionCallbackParams(it)
+
+        val params = globalParams ?: sessionParams
+        params?.let {
+            adjustCommand.removeGlobalCallbackParams(it)
         }
     }
 
-    private fun resetSessionCallbackParams(payload: JSONObject) {
-        adjustCommand.resetSessionCallbackParams()
+    private fun resetGlobalCallbackParams(payload: JSONObject) {
+        adjustCommand.resetGlobalCallbackParams()
     }
 
-    private fun addPartnerSessionCallbackParams(payload: JSONObject) {
+    private fun addPartnerGlobalCallbackParams(payload: JSONObject) {
+        val partnerGlobalParams: Map<String, String>? =
+            payload.optJSONObject(Events.GLOBAL_PARTNER_PARAMETERS)?.toTypedMap()
         val partnerSessionParams: Map<String, String>? =
             payload.optJSONObject(Events.SESSION_PARTNER_PARAMETERS)?.toTypedMap()
-        partnerSessionParams?.let {
-            adjustCommand.addSessionPartnerParams(it)
+
+        val partnerParams = partnerGlobalParams ?: partnerSessionParams
+        partnerParams?.let {
+            adjustCommand.addGlobalPartnerParams(it)
         }
     }
 
-    private fun removePartnerSessionCallbackParams(payload: JSONObject) {
+    private fun removePartnerGlobalCallbackParams(payload: JSONObject) {
+        val partnerGlobalParams: List<String>? =
+            payload.optJSONArray(Events.REMOVE_GLOBAL_PARTNER_PARAMETERS)?.toStringList()
         val partnerSessionParams: List<String>? =
             payload.optJSONArray(Events.REMOVE_SESSION_PARTNER_PARAMETERS)?.toStringList()
-        partnerSessionParams?.let {
-            adjustCommand.removeSessionPartnerParams(it)
+
+        val partnerParams = partnerGlobalParams ?: partnerSessionParams
+        partnerParams?.let {
+            adjustCommand.removeGlobalPartnerParams(it)
         }
     }
 
-    private fun resetPartnerSessionCallbackParams() {
-        adjustCommand.resetSessionPartnerParams()
+    private fun resetPartnerGlobalCallbackParams() {
+        adjustCommand.resetGlobalPartnerParams()
     }
 
     companion object {
         private const val DEFAULT_COMMAND_ID = "adjust"
         private const val DEFAULT_COMMAND_DESC = "Tealium-Adjust Remote Command"
         private const val INVALID_REVENUE = -1.0
-    }
 
-    private inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
-        val map = HashMap<String, T>()
-        keys().forEach { key ->
-            val value = this[key]
-            (value as? T)?.let {
-                map[key] = value
+        fun JSONArray.toStringList(): List<String> {
+            val list = mutableListOf<String>()
+            for (i in 0 until length()) {
+                getString(i)?.let {
+                    list.add(it)
+                }
             }
+            return list
         }
-        return map
-    }
 
-    private fun JSONArray.toStringList(): List<String> {
-        val list = mutableListOf<String>()
-        for (i in 0 until length()) {
-            getString(i)?.let {
-                list.add(it)
+        inline fun <reified T> JSONObject.toTypedMap(): Map<String, T> {
+            val map = HashMap<String, T>()
+            keys().forEach { key ->
+                val value = this[key]
+                (value as? T)?.let {
+                    map[key] = value
+                }
             }
+            return map
         }
-        return list
     }
 
     private fun String.nullIfBlank(): String? {

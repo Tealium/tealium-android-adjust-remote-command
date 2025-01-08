@@ -34,15 +34,14 @@ class AdjustCommandTests {
         mockkConstructor(AdjustConfig::class)
         mockkConstructor(AdjustEvent::class)
 
-        every { anyConstructed<AdjustConfig>().setAppSecret(any(),any(),any(),any(),any()) } just Runs
-        every { anyConstructed<AdjustEvent>().setOrderId(any()) } just Runs
+        every { anyConstructed<AdjustEvent>().orderId = any() } just Runs
 
         adjustCommand = AdjustInstance(mockApp)
     }
 
     @Test
     fun initialize_Initializes_WhenRequiredParamsAvailable() {
-        every { Adjust.onCreate(any()) } just Runs
+        every { Adjust.initSdk(any()) } just Runs
 
         adjustCommand.initialize(
             "token",
@@ -51,62 +50,51 @@ class AdjustCommandTests {
         )
 
         verify(exactly = 0) {
-            anyConstructed<AdjustConfig>().setAppSecret(any(), any(), any(), any(), any())
             anyConstructed<AdjustConfig>().setLogLevel(any())
-            anyConstructed<AdjustConfig>().setDelayStart(any())
-            anyConstructed<AdjustConfig>().setPreinstallTrackingEnabled(any())
-            anyConstructed<AdjustConfig>().setEventBufferingEnabled(any())
-            anyConstructed<AdjustConfig>().setSendInBackground(any())
-            anyConstructed<AdjustConfig>().setDefaultTracker(any())
-            anyConstructed<AdjustConfig>().setUrlStrategy(any())
-            anyConstructed<AdjustConfig>().setCoppaCompliantEnabled(any())
-            anyConstructed<AdjustConfig>().setPlayStoreKidsAppEnabled(any())
+            anyConstructed<AdjustConfig>().enablePreinstallTracking()
+            anyConstructed<AdjustConfig>().enableSendingInBackground()
+            anyConstructed<AdjustConfig>().defaultTracker = any()
+            anyConstructed<AdjustConfig>().setUrlStrategy(any(), any(), any())
+            anyConstructed<AdjustConfig>().enableCoppaCompliance()
+            anyConstructed<AdjustConfig>().enablePlayStoreKidsCompliance()
         }
 
         verify {
-            Adjust.onCreate(any())
+            Adjust.initSdk(any())
         }
     }
 
     @Test
     fun initialize_Initializes_WithOptionals_WhenAvailable() {
-        every { Adjust.onCreate(any()) } just Runs
+        every { Adjust.initSdk(any()) } just Runs
 
         adjustCommand.initialize("token",
             false,
             JSONObject().apply {
-                put(ConstConfig.DELAY_START, 5)
                 put(ConstConfig.LOG_LEVEL, "verbose")
-                put(ConstConfig.SECRET_ID, 0)
-                put(ConstConfig.SECRET_INFO_1, 1)
-                put(ConstConfig.SECRET_INFO_2, 2)
-                put(ConstConfig.SECRET_INFO_3, 3)
-                put(ConstConfig.SECRET_INFO_4, 4)
                 put(ConstConfig.PREINSTALL_TRACKING, true)
                 put(ConstConfig.DEFAULT_TRACKER, "tracker")
-                put(ConstConfig.EVENT_BUFFERING_ENABLED, true)
                 put(ConstConfig.SEND_IN_BACKGROUND, true)
-                put(ConstConfig.URL_STRATEGY, "url_strategy_china")
+                put(ConstConfig.URL_STRATEGY, "UrlStrategyChina")
                 put(ConstConfig.COPPA_COMPLIANT, true)
                 put(ConstConfig.PLAY_STORE_KIDS_ENABLED, true)
+                put(ConstConfig.DEDUPLICATION_ID_MAX_SIZE, 3)
             }
         )
 
         verify {
-            anyConstructed<AdjustConfig>().setAppSecret(0, 1, 2, 3, 4)
             anyConstructed<AdjustConfig>().setLogLevel(LogLevel.VERBOSE)
-            anyConstructed<AdjustConfig>().setDelayStart(5.0)
-            anyConstructed<AdjustConfig>().setPreinstallTrackingEnabled(true)
-            anyConstructed<AdjustConfig>().setEventBufferingEnabled(true)
-            anyConstructed<AdjustConfig>().setSendInBackground(true)
-            anyConstructed<AdjustConfig>().setDefaultTracker("tracker")
-            anyConstructed<AdjustConfig>().setUrlStrategy("url_strategy_china")
-            anyConstructed<AdjustConfig>().setCoppaCompliantEnabled(true)
-            anyConstructed<AdjustConfig>().setPlayStoreKidsAppEnabled(true)
+            anyConstructed<AdjustConfig>().enablePreinstallTracking()
+            anyConstructed<AdjustConfig>().enableSendingInBackground()
+            anyConstructed<AdjustConfig>().defaultTracker = "tracker"
+            anyConstructed<AdjustConfig>().setUrlStrategy(listOf("adjust.world", "adjust.com"), true, false)
+            anyConstructed<AdjustConfig>().enableCoppaCompliance()
+            anyConstructed<AdjustConfig>().enablePlayStoreKidsCompliance()
+            anyConstructed<AdjustConfig>().eventDeduplicationIdsMaxSize = 3
         }
 
         verify {
-            Adjust.onCreate(any())
+            Adjust.initSdk(any())
         }
     }
 
@@ -121,13 +109,14 @@ class AdjustCommandTests {
             null,
             null,
             null,
+            null,
             null
         )
 
         verify(exactly = 0) {
-            anyConstructed<AdjustEvent>().setOrderId(any())
+            anyConstructed<AdjustEvent>().orderId = any()
             anyConstructed<AdjustEvent>().setRevenue(any(), any())
-            anyConstructed<AdjustEvent>().setCallbackId(any())
+            anyConstructed<AdjustEvent>().callbackId = any()
             anyConstructed<AdjustEvent>().addCallbackParameter(any(), any())
             anyConstructed<AdjustEvent>().addPartnerParameter(any(), any())
         }
@@ -144,6 +133,7 @@ class AdjustCommandTests {
         adjustCommand.sendEvent(
             "token",
             "orderId",
+            "dedupId",
             1.0,
             "USD",
             mapOf("callback_1" to "value_1", "callback_2" to "value_2"),
@@ -152,9 +142,10 @@ class AdjustCommandTests {
         )
 
         verify {
-            anyConstructed<AdjustEvent>().setOrderId("orderId")
+            anyConstructed<AdjustEvent>().orderId = "orderId"
+            anyConstructed<AdjustEvent>().deduplicationId = "dedupId"
             anyConstructed<AdjustEvent>().setRevenue(1.0, "USD")
-            anyConstructed<AdjustEvent>().setCallbackId("id")
+            anyConstructed<AdjustEvent>().callbackId = "id"
             anyConstructed<AdjustEvent>().addCallbackParameter("callback_1", "value_1")
             anyConstructed<AdjustEvent>().addCallbackParameter("callback_2", "value_2")
             anyConstructed<AdjustEvent>().addPartnerParameter("partner_1", "value_1")
@@ -167,10 +158,10 @@ class AdjustCommandTests {
     }
 
     @Test
-    fun addSessionCallbackParams_AddsAllParams() {
-        every { Adjust.addSessionCallbackParameter(any(), any()) } just Runs
+    fun addGlobalCallbackParams_AddsAllParams() {
+        every { Adjust.addGlobalCallbackParameter(any(), any()) } just Runs
 
-        adjustCommand.addSessionCallbackParams(
+        adjustCommand.addGlobalCallbackParams(
             mapOf(
                 "string_1" to "value_1",
                 "string_2" to "value_2"
@@ -178,16 +169,16 @@ class AdjustCommandTests {
         )
 
         verify {
-            Adjust.addSessionCallbackParameter("string_1", "value_1")
-            Adjust.addSessionCallbackParameter("string_2", "value_2")
+            Adjust.addGlobalCallbackParameter("string_1", "value_1")
+            Adjust.addGlobalCallbackParameter("string_2", "value_2")
         }
     }
 
     @Test
     fun addPartnerCallbackParams_AddsAllParams() {
-        every { Adjust.addSessionPartnerParameter(any(), any()) } just Runs
+        every { Adjust.addGlobalPartnerParameter(any(), any()) } just Runs
 
-        adjustCommand.addSessionPartnerParams(
+        adjustCommand.addGlobalPartnerParams(
             mapOf(
                 "string_1" to "value_1",
                 "string_2" to "value_2"
@@ -195,16 +186,16 @@ class AdjustCommandTests {
         )
 
         verify {
-            Adjust.addSessionPartnerParameter("string_1", "value_1")
-            Adjust.addSessionPartnerParameter("string_2", "value_2")
+            Adjust.addGlobalPartnerParameter("string_1", "value_1")
+            Adjust.addGlobalPartnerParameter("string_2", "value_2")
         }
     }
 
     @Test
-    fun removeSessionCallbackParams_RemovesAllParams() {
-        every { Adjust.removeSessionCallbackParameter(any()) } just Runs
+    fun removeGlobalCallbackParams_RemovesAllParams() {
+        every { Adjust.removeGlobalCallbackParameter(any()) } just Runs
 
-        adjustCommand.removeSessionCallbackParams(
+        adjustCommand.removeGlobalCallbackParams(
             listOf(
                 "string_1",
                 "string_2"
@@ -212,16 +203,16 @@ class AdjustCommandTests {
         )
 
         verify {
-            Adjust.removeSessionCallbackParameter("string_1")
-            Adjust.removeSessionCallbackParameter("string_2")
+            Adjust.removeGlobalCallbackParameter("string_1")
+            Adjust.removeGlobalCallbackParameter("string_2")
         }
     }
 
     @Test
     fun addPartnerCallbackParams_RemovesAllParams() {
-        every { Adjust.removeSessionCallbackParameter(any()) } just Runs
+        every { Adjust.removeGlobalCallbackParameter(any()) } just Runs
 
-        adjustCommand.removeSessionPartnerParams(
+        adjustCommand.removeGlobalPartnerParams(
             listOf(
                 "string_1",
                 "string_2"
@@ -229,30 +220,30 @@ class AdjustCommandTests {
         )
 
         verify {
-            Adjust.removeSessionPartnerParameter("string_1")
-            Adjust.removeSessionPartnerParameter("string_2")
+            Adjust.removeGlobalPartnerParameter("string_1")
+            Adjust.removeGlobalPartnerParameter("string_2")
         }
     }
 
     @Test
-    fun resetSessionCallbackParams_ResetsParams() {
-        every { Adjust.resetSessionCallbackParameters() } just Runs
+    fun resetGlobalCallbackParams_ResetsParams() {
+        every { Adjust.removeGlobalCallbackParameters() } just Runs
 
-        adjustCommand.resetSessionCallbackParams()
+        adjustCommand.resetGlobalCallbackParams()
 
         verify {
-            Adjust.resetSessionCallbackParameters()
+            Adjust.removeGlobalCallbackParameters()
         }
     }
 
     @Test
     fun resetPartnerCallbackParams_ResetsParams() {
-        every { Adjust.resetSessionPartnerParameters() } just Runs
+        every { Adjust.removeGlobalPartnerParameters() } just Runs
 
-        adjustCommand.resetSessionPartnerParams()
+        adjustCommand.resetGlobalPartnerParams()
 
         verify {
-            Adjust.resetSessionPartnerParameters()
+            Adjust.removeGlobalPartnerParameters()
         }
     }
 
@@ -269,27 +260,29 @@ class AdjustCommandTests {
 
     @Test
     fun setEnabled_EnablesOrDisables() {
-        every { Adjust.setEnabled(any()) } just Runs
+        every { Adjust.enable() } just Runs
+        every { Adjust.disable() } just Runs
 
         adjustCommand.setEnabled(true)
         adjustCommand.setEnabled(false)
 
         verifyOrder {
-            Adjust.setEnabled(true)
-            Adjust.setEnabled(false)
+            Adjust.enable()
+            Adjust.disable()
         }
     }
 
     @Test
     fun setOfflineMode_SetsOffline() {
-        every { Adjust.setOfflineMode(any()) } just Runs
+        every { Adjust.switchToOfflineMode() } just Runs
+        every { Adjust.switchBackToOnlineMode() } just Runs
 
         adjustCommand.setOfflineMode(true)
         adjustCommand.setOfflineMode(false)
 
         verifyOrder {
-            Adjust.setOfflineMode(true)
-            Adjust.setOfflineMode(false)
+            Adjust.switchToOfflineMode()
+            Adjust.switchBackToOnlineMode()
         }
     }
 
@@ -308,8 +301,6 @@ class AdjustCommandTests {
 
     @Test
     fun setThirdPartySharing_NullDoesNotCallAdjust() {
-        every { Adjust.disableThirdPartySharing(any()) } just Runs
-
         adjustCommand.setThirdPartySharing(null, null)
 
         verify(inverse = true) {
@@ -319,8 +310,6 @@ class AdjustCommandTests {
 
     @Test
     fun setThirdPartySharing_Disables() {
-        every { Adjust.disableThirdPartySharing(any()) } just Runs
-
         adjustCommand.setThirdPartySharing(false, null)
 
         verifyOrder {
@@ -332,8 +321,6 @@ class AdjustCommandTests {
 
     @Test
     fun setThirdPartySharing_Enables() {
-        every { Adjust.disableThirdPartySharing(any()) } just Runs
-
         adjustCommand.setThirdPartySharing(true, null)
 
         verifyOrder {
@@ -345,7 +332,6 @@ class AdjustCommandTests {
 
     @Test
     fun setThirdPartySharing_WithOptions_MapsOptions() {
-        every { Adjust.disableThirdPartySharing(any()) } just Runs
         val options = JSONObject().apply {
             put("facebook", JSONObject().apply {
                 put("data_processing_options_country", "1")
